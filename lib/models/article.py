@@ -15,4 +15,4 @@ class Article:
         cursor.execute("SELECT * FROM articles")
         rows = cursor.fetchall()
         conn.close()
-        return [cls(row["id"], row["title"], row["content"], row["author_id"], row["magazine_id"]) for row in rows]
+        return [cls(*row) for row in rows]

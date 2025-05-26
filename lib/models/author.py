@@ -13,25 +13,29 @@ class Author:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM authors WHERE id = ?", (author_id,))
         row = cursor.fetchone()
+        conn.close()
         if row:
-            return cls(row['id'], row['name'])
-        return None
+            return cls(*row)
+        else:
+            return None
 
     def articles(self):
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM articles WHERE author_id = ?", (self.id,))
         rows = cursor.fetchall()
-        return [Article(row['id'], row['title'], row['content'], row['author_id'], row['magazine_id']) for row in rows]
+        conn.close()
+        return [Article(*row) for row in rows]
 
     def magazines(self):
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT DISTINCT m.*
+            SELECT DISTINCT m.id, m.name, m.category
             FROM magazines m
-            JOIN articles a ON m.id = a.magazine_id
+            JOIN articles a ON a.magazine_id = m.id
             WHERE a.author_id = ?
         """, (self.id,))
         rows = cursor.fetchall()
-        return [Magazine(row['id'], row['name'], row['category']) for row in rows]
+        conn.close()
+        return [Magazine(*row) for row in rows]
